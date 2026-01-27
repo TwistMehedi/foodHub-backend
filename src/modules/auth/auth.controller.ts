@@ -81,3 +81,39 @@ export const verifyEmail = TryCatch(async (req, res, next) => {
     message: "Registration successfully",
   });
 });
+
+export const login = TryCatch(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return next(new ErrorHandler("Email and password required", 400));
+  }
+
+  const user = await AuthService.loginUser(email, password);
+
+  const token = jwt.sign(
+    { userId: user.id, role: user.role },
+    envConfig.jwt_secret!,
+    { expiresIn: "1d" },
+  );
+
+  res
+    .cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000,
+    })
+    .status(200)
+    .json({
+      success: true,
+      message: "Login successful",
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+});
