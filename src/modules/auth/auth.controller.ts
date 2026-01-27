@@ -117,3 +117,33 @@ export const login = TryCatch(async (req, res, next) => {
       },
     });
 });
+
+export const me = TryCatch(async (req, res) => {
+  if (!req.user?.id) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
+    });
+  }
+
+  const me = await prisma.user.findUnique({
+    where: {
+      id: req.user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      status: true,
+      isVerified: true,
+      createdAt: true,
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Welcome to your profile",
+    me,
+  });
+});

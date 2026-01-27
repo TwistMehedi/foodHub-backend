@@ -14,7 +14,7 @@ enum UserStatus {
 
 enum Role {
   CUSTOMER
-  PROVIDER
+  SELLER
   ADMIN
 }
 
@@ -28,10 +28,10 @@ model User {
   isVerified Boolean    @default(false)
   createdAt  DateTime   @default(now())
 
-  providerProfile ProviderProfile?
-  orders          Order[]
-  reviews         Review[]
-  categories      Category[]
+  sellerProfile SellerProfile?
+  orders        Order[]
+  reviews       Review[]
+  categories    Category[]
 }
 
 model Meal {
@@ -43,17 +43,17 @@ model Meal {
   isAvailable Boolean  @default(true)
   createdAt   DateTime @default(now())
 
-  providerId String
+  sellerId   String
   categoryId String
 
-  provider ProviderProfile @relation(fields: [providerId], references: [id])
-  category Category        @relation(fields: [categoryId], references: [id])
+  seller   SellerProfile @relation(fields: [sellerId], references: [id])
+  category Category      @relation(fields: [categoryId], references: [id])
 
   orderItems OrderItem[]
   reviews    Review[]
 }
 
-model ProviderProfile {
+model SellerProfile {
   id          String   @id @default(uuid())
   userId      String   @unique
   shopName    String
@@ -75,7 +75,7 @@ model Category {
 
   providerId String
 
-  provider ProviderProfile @relation(fields: [providerId], references: [id])
+  seller SellerProfile @relation(fields: [providerId], references: [id])
 
   meals  Meal[]
   user   User?   @relation(fields: [userId], references: [id])
@@ -93,15 +93,15 @@ enum OrderStatus {
 model Order {
   id              String      @id @default(uuid())
   userId          String
-  providerId      String
+  sellerId        String
   status          OrderStatus @default(PLACED)
   deliveryAddress String
   totalAmount     Float
   createdAt       DateTime    @default(now())
 
-  user     User            @relation(fields: [userId], references: [id])
-  provider ProviderProfile @relation(fields: [providerId], references: [id])
-  items    OrderItem[]
+  user   User          @relation(fields: [userId], references: [id])
+  seller SellerProfile @relation(fields: [sellerId], references: [id])
+  items  OrderItem[]
 }
 
 model OrderItem {
