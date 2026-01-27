@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum Role {
+  CUSTOMER
+  PROVIDER
+  ADMIN
+}
+
+model User {
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String
+  role      Role
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime   @default(now())
+
+  providerProfile ProviderProfile?
+  orders          Order[]
+  reviews         Review[]
+  categories      Category[]
+}
+
+model Meal {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  image       String?
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  providerId String
+  categoryId String
+
+  provider ProviderProfile @relation(fields: [providerId], references: [id])
+  category Category        @relation(fields: [categoryId], references: [id])
+
+  orderItems OrderItem[]
+  reviews    Review[]
+}
+
+model ProviderProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  shopName    String
+  description String?
+  address     String
+  isOpen      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id])
+  meals      Meal[]
+  orders     Order[]
+  categories Category[]
+}
+
+model Category {
+  id       String  @id @default(uuid())
+  name     String  @unique
+  isActive Boolean @default(true)
+
+  providerId String
+
+  provider ProviderProfile @relation(fields: [providerId], references: [id])
+
+  meals  Meal[]
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+}
+
+enum OrderStatus {
+  PLACED
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  userId          String
+  providerId      String
+  status          OrderStatus @default(PLACED)
+  deliveryAddress String
+  totalAmount     Float
+  createdAt       DateTime    @default(now())
+
+  user     User            @relation(fields: [userId], references: [id])
+  provider ProviderProfile @relation(fields: [providerId], references: [id])
+  items    OrderItem[]
+}
+
+model OrderItem {
+  id       String @id @default(uuid())
+  orderId  String
+  mealId   String
+  quantity Int
+  price    Float
+
+  order Order @relation(fields: [orderId], references: [id])
+  meal  Meal  @relation(fields: [mealId], references: [id])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  userId String
+  mealId String
+
+  user User @relation(fields: [userId], references: [id])
+  meal Meal @relation(fields: [mealId], references: [id])
+}
