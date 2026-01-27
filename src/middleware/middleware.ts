@@ -33,3 +33,21 @@ export const middleware = TryCatch(
     next();
   },
 );
+
+export const authorizeRoles = (...allowedRoles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const userRole = req.user?.role;
+
+    if (!userRole) {
+      return next(new ErrorHandler("User role missing in request", 401));
+    }
+
+    if (!allowedRoles.includes(userRole)) {
+      return res.status(403).json({
+        message: `Access denied for role '${userRole}'. Allowed roles: ${allowedRoles.join(", ")}`,
+      });
+    }
+
+    next();
+  };
+};

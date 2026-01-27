@@ -26,9 +26,10 @@ async function seedAdmin() {
   await prisma.user.create({
     data: {
       name: admin.name,
-      email: admin.name,
+      email: admin.email,
       password: hashedPassword,
       role: admin.role,
+      isVerified: admin.isVerified,
     },
   });
 
