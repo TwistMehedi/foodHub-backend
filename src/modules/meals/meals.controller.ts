@@ -98,7 +98,7 @@ export const updateMeal = TryCatch(async (req, res, next) => {
 
   const userId = req.user?.id as string;
 
-  const { name, description, price, image } = req.body;
+  const { name, description, price, image, isAvailable } = req.body;
 
   if (!mealId) {
     return next(new ErrorHandler("Meal id is required", 400));
@@ -109,7 +109,7 @@ export const updateMeal = TryCatch(async (req, res, next) => {
   }
 
   const meal = await MealsService.mealUpdate(
-    { name, description, price, image },
+    { name, description, price, image, isAvailable },
     userId,
     mealId,
   );
@@ -118,5 +118,27 @@ export const updateMeal = TryCatch(async (req, res, next) => {
     success: true,
     message: "Meal updated successfully",
     meal,
+  });
+});
+
+export const deleteMeal = TryCatch(async (req, res, next) => {
+  const mealId = req.params.id as string;
+  const userId = req.user?.id as string;
+
+  if (!userId) {
+    return next(new ErrorHandler("You cannot access", 401));
+  }
+
+  if (!mealId) {
+    return next(
+      new ErrorHandler("Meal id missing, you cannot hit this api", 400),
+    );
+  }
+
+  await MealsService.deleteMeal(mealId, userId);
+
+  res.status(200).json({
+    success: true,
+    message: "Meal deleted successfully",
   });
 });

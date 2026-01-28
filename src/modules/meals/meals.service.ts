@@ -54,7 +54,14 @@ export const MealsService = {
       description,
       price,
       image,
-    }: { name: string; description: string; price: number; image: string },
+      isAvailable,
+    }: {
+      name: string;
+      description: string;
+      price: number;
+      image: string;
+      isAvailable: boolean;
+    },
     userId: string,
     mealId: string,
   ) => {
@@ -87,9 +94,28 @@ export const MealsService = {
         description,
         price,
         image,
+        isAvailable,
       },
     });
 
     return updatedMeal;
+  },
+
+  deleteMeal: async (mealId: string, userId: string) => {
+    const meal = await prisma.meal.findUnique({
+      where: { id: mealId, userId },
+    });
+
+    if (!meal) {
+      throw new ErrorHandler("Meal not found", 404);
+    }
+
+    if (userId !== meal.userId) {
+      throw new ErrorHandler("You are not allowed to delete this meal", 403);
+    }
+
+    return await prisma.meal.delete({
+      where: { id: mealId },
+    });
   },
 };
