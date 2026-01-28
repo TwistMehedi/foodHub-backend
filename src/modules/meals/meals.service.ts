@@ -47,4 +47,49 @@ export const MealsService = {
     console.log(meal);
     return meal;
   },
+
+  mealUpdate: async (
+    {
+      name,
+      description,
+      price,
+      image,
+    }: { name: string; description: string; price: number; image: string },
+    userId: string,
+    mealId: string,
+  ) => {
+    const provider = await prisma.providerProfile.findUnique({
+      where: {
+        userId,
+      },
+    });
+
+    if (!provider) {
+      throw new ErrorHandler("You not owner this meal", 401);
+    }
+
+    const meal = await prisma.meal.findFirst({
+      where: {
+        id: mealId,
+        userId,
+        providerId: provider.id,
+      },
+    });
+
+    if (!meal) {
+      throw new ErrorHandler("Meal not found", 404);
+    }
+
+    const updatedMeal = await prisma.meal.update({
+      where: { id: mealId },
+      data: {
+        name,
+        description,
+        price,
+        image,
+      },
+    });
+
+    return updatedMeal;
+  },
 };

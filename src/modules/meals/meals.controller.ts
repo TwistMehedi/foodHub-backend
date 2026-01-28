@@ -40,6 +40,9 @@ export const createMeal = TryCatch(async (req, res, next) => {
   const { name, description, price, categoryName } = req.body;
 
   const userId = req.user?.id as string;
+  if (!userId) {
+    return next(new ErrorHandler("You are not athorized", 400));
+  }
 
   if (!name || !description || !price || !categoryName) {
     return next(
@@ -90,4 +93,30 @@ export const getMels = TryCatch(async (req, res, next) => {
   });
 });
 
-export const updateMela = TryCatch(async (req, res, next) => {});
+export const updateMeal = TryCatch(async (req, res, next) => {
+  const mealId = req.params.id as string;
+
+  const userId = req.user?.id as string;
+
+  const { name, description, price, image } = req.body;
+
+  if (!mealId) {
+    return next(new ErrorHandler("Meal id is required", 400));
+  }
+
+  if (!userId) {
+    return next(new ErrorHandler("Unauthorized", 401));
+  }
+
+  const meal = await MealsService.mealUpdate(
+    { name, description, price, image },
+    userId,
+    mealId,
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Meal updated successfully",
+    meal,
+  });
+});
