@@ -13,7 +13,7 @@ app.use(morgan("dev"));
 app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/admin", userRouter);
-app.use("/api/provider", mealsRouter);
+app.use("/api", mealsRouter);
 
 app.use(errorMiddleware);
 

@@ -142,3 +142,70 @@ export const deleteMeal = TryCatch(async (req, res, next) => {
     message: "Meal deleted successfully",
   });
 });
+
+export const getAllMels = TryCatch(async (req, res, next) => {
+  const meals = await prisma.meal.findMany();
+
+  if (meals.length === 0) {
+    return next(new ErrorHandler("Meals not found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Meal fetch successfully",
+    meals,
+  });
+});
+
+export const getMealById = TryCatch(async (req, res, next) => {
+  const mealId = req.params?.id as string;
+
+  if (!mealId) {
+    return next(new ErrorHandler("Meal id not found", 404));
+  }
+
+  const meal = await prisma.meal.findUnique({
+    where: {
+      id: mealId,
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Meal get successfully",
+    meal,
+  });
+});
+
+export const getAllProvider = TryCatch(async (req, res, next) => {
+  const providers = await prisma.providerProfile.findMany();
+  if (!providers) {
+    return next(new ErrorHandler("Providers not found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Providers found",
+    providers,
+  });
+});
+
+export const getProviderById = TryCatch(async (req, res, next) => {
+  const providerId = req.params?.id as string;
+
+  if (!providerId) {
+    return next(new ErrorHandler("Provider id not found", 404));
+  }
+
+  const provider = await prisma.providerProfile.findUnique({
+    where: {
+      id: providerId,
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Provider get successfully",
+    provider,
+  });
+});
