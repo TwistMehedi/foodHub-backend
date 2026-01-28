@@ -63,3 +63,31 @@ export const createMeal = TryCatch(async (req, res, next) => {
     meal,
   });
 });
+
+export const getMels = TryCatch(async (req, res, next) => {
+  const userId = req.user?.id as string;
+
+  if (!userId) {
+    return next(new ErrorHandler("You are not athorized", 400));
+  }
+
+  const meals = await prisma.meal.findMany({
+    where: {
+      userId,
+    },
+  });
+
+  if (meals.length <= 0) {
+    return next(
+      new ErrorHandler("Not have your meals please create first", 404),
+    );
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Founded your all meals",
+    meals,
+  });
+});
+
+export const updateMela = TryCatch(async (req, res, next) => {});
