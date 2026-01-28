@@ -4,6 +4,7 @@ import { errorMiddleware } from "./middleware/errorMiddleware ";
 import { authRouter } from "./modules/auth/auth.route";
 import cookieParser from "cookie-parser";
 import { userRouter } from "./modules/user/user.route";
+import { mealsRouter } from "./modules/meals/meals.route";
 
 const app: Application = express();
 
@@ -12,6 +13,7 @@ app.use(morgan("dev"));
 app.use(cookieParser());
 app.use("/api/auth", authRouter);
 app.use("/api/admin", userRouter);
+app.use("/api/provider", mealsRouter);
 
 app.use(errorMiddleware);
 

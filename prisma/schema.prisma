@@ -32,22 +32,27 @@ model User {
   orders          Order[]
   reviews         Review[]
   categories      Category[]
+  meals           Meal[]
 }
 
 model Meal {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  price       Float
-  image       String?
-  isAvailable Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  price        Float
+  image        String?
+  categoryName String
+  views        Int?
+  isAvailable  Boolean  @default(true)
+  createdAt    DateTime @default(now())
 
+  userId     String?
+  categoryId String?
   providerId String
-  categoryId String
 
-  provider ProviderProfile @relation(fields: [providerId], references: [id])
-  category Category        @relation(fields: [categoryId], references: [id])
+  user     User?            @relation(fields: [userId], references: [id])
+  category Category?        @relation(fields: [categoryId], references: [id])
+  provider ProviderProfile? @relation(fields: [providerId], references: [id])
 
   orderItems OrderItem[]
   reviews    Review[]
@@ -59,13 +64,13 @@ model ProviderProfile {
   shopName    String
   description String?
   address     String
-  isOpen      Boolean  @default(true)
+  isOpen      Boolean? @default(true)
   createdAt   DateTime @default(now())
 
   user       User       @relation(fields: [userId], references: [id])
-  meals      Meal[]
   orders     Order[]
   categories Category[]
+  meals      Meal[]
 }
 
 model Category {
