@@ -143,16 +143,23 @@ export const deleteMeal = TryCatch(async (req, res, next) => {
   });
 });
 
-export const getAllMels = TryCatch(async (req, res, next) => {
-  const meals = await prisma.meal.findMany();
+export const getAllMeals = TryCatch(async (req, res, next) => {
+  const meals = await prisma.meal.findMany({
+    include: {
+      provider: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-  if (meals.length === 0) {
+  if (meals?.length === 0) {
     return next(new ErrorHandler("Meals not found", 404));
   }
 
   res.status(200).json({
     success: true,
-    message: "Meal fetch successfully",
+    message: "Meals fetched successfully",
     meals,
   });
 });
@@ -167,6 +174,9 @@ export const getMealById = TryCatch(async (req, res, next) => {
   const meal = await prisma.meal.findUnique({
     where: {
       id: mealId,
+    },
+    include: {
+      provider: true,
     },
   });
 
@@ -207,5 +217,48 @@ export const getProviderById = TryCatch(async (req, res, next) => {
     success: true,
     message: "Provider get successfully",
     provider,
+  });
+});
+
+export const getCategories = TryCatch(async (req, res, next) => {
+  const categories = await prisma.category.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  if (categories.length === 0) {
+    return next(new ErrorHandler("Meals nt found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    count: categories.length,
+    message: "Categories fetched successfully",
+    data: categories,
+  });
+});
+
+export const getMealsInHome = TryCatch(async (req, res, next) => {
+  const meals = await prisma.meal.findMany({
+    take: 8,
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      image: true,
+      category: true,
+    },
+  });
+
+  if (meals.length === 0) {
+    return next(new ErrorHandler("Meals not found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Top 8 meals fetched successfully",
+    data: meals,
   });
 });

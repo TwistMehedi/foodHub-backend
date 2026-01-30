@@ -55,7 +55,6 @@ export const register = TryCatch(async (req, res, next) => {
   res.status(201).json({
     success: true,
     message: "Verification email sent. Please check your inbox.",
-    token,
   });
 });
 

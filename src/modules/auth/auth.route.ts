@@ -5,7 +5,7 @@ import { middleware } from "../../middleware/middleware";
 const router = express.Router();
 
 router.route("/register").post(register);
-router.route("/verify-email").post(verifyEmail);
+router.route("/verify-email").get(verifyEmail);
 router.route("/login").post(login);
 router.route("/me").get(middleware, me);
 
