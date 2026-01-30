@@ -94,3 +94,27 @@ export const updateUserStatusByAdmin = TryCatch(async (req, res, next) => {
     user: updatedUser,
   });
 });
+
+export const me = TryCatch(async (req, res, next) => {
+  const userId = req.user?.id as string;
+
+  if (!userId) {
+    return next(new ErrorHandler("You cannot access this profile", 401));
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    return next(new ErrorHandler("User not found", 401));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Welcome to your profile",
+    user,
+  });
+});
