@@ -19,7 +19,7 @@ app.use(
   }),
 );
 app.use("/api/auth", authRouter);
-app.use("/api/", userRouter);
+app.use("/api", userRouter);
 app.use("/api", mealsRouter);
 
 app.use(errorMiddleware);

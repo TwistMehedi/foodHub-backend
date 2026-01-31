@@ -12,7 +12,7 @@ const router = express.Router();
 // admin route
 router
   .route("/admin/create-category")
-  .post(middleware, authorizeRoles("ADMIN"), createCategory);
+  .post(middleware, authorizeRoles("ADMIN", "PROVIDER"), createCategory);
 
 router
   .route("/admin/users")

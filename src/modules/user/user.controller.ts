@@ -46,7 +46,7 @@ export const getUsersByAdmin = TryCatch(async (req, res, next) => {
   }
 
   const users = await prisma.user.findMany();
-
+  console.log(users);
   if (users.length === 0) {
     return next(new ErrorHandler("No users found", 404));
   }

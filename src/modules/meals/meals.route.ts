@@ -11,16 +11,24 @@ import {
   getProviderById,
   getCategories,
   getMealsInHome,
+  deleteCategory,
 } from "./meals.controller";
-import { middleware } from "../../middleware/middleware";
+import { authorizeRoles, middleware } from "../../middleware/middleware";
 
 const router = express.Router();
 
-router.route("/create-resturant").post(middleware, createResturant);
+router
+  .route("/create-resturant")
+  .post(middleware, authorizeRoles("ADMIN", "PROVIDER"), createResturant);
 router.route("/provider/meals").post(middleware, createMeal);
-router.route("/meals/me").get(middleware, getMels);
+router
+  .route("/provider/meals/me")
+  .get(middleware, authorizeRoles("ADMIN", "PROVIDER"), getMels);
 router.route("/meals/:id").put(middleware, updateMeal);
 router.route("/meals/:id").delete(middleware, deleteMeal);
+router
+  .route("/meals/delete/category/:id")
+  .delete(middleware, authorizeRoles("ADMIN"), deleteCategory);
 
 //pblic route
 router.route("/meals").get(getAllMeals);
