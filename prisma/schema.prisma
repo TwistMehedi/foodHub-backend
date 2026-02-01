@@ -95,20 +95,20 @@ enum OrderStatus {
 }
 
 model Order {
-  id              String      @id @default(uuid())
+  id              String          @id @default(uuid())
   userId          String
   providerId      String
   mealId          String
   deliveryAddress String
-  status          OrderStatus @default(PLACED)
+  status          OrderStatus     @default(PLACED)
   totalAmount     Float
-  createdAt       DateTime    @default(now())
-
-  meal     Meal            @relation(fields: [mealId], references: [id])
-  address  Address         @relation(fields: [deliveryAddress], references: [id])
-  user     User            @relation(fields: [userId], references: [id])
-  provider ProviderProfile @relation(fields: [providerId], references: [id])
-  items    OrderItem[]
+  createdAt       DateTime        @default(now())
+  payment         String          @default("Cash on Delivery")
+  meal            Meal            @relation(fields: [mealId], references: [id])
+  address         Address         @relation(fields: [deliveryAddress], references: [id])
+  user            User            @relation(fields: [userId], references: [id])
+  provider        ProviderProfile @relation(fields: [providerId], references: [id])
+  items           OrderItem[]
 }
 
 model OrderItem {
