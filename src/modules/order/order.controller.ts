@@ -3,75 +3,64 @@ import { ErrorHandler } from "../../utils/ErrorHandler";
 import TryCatch from "../../utils/TryCatch";
 
 export const createOrder = TryCatch(async (req, res, next) => {
-    
-  const userId = req.user?.id;
+  const userId = req.user?.id as string;
 
   const { providerId, deliveryAddress, items } = req.body;
 
-  // 🔐 auth check
-  if (!userId) {
-    return next(new ErrorHandler("Unauthorized", 401));
+  if (!items || items.length === 0) {
+    return next(new ErrorHandler("Cart is empty", 400));
   }
 
-  // 🧾 validation
-  if (!providerId || !deliveryAddress || !items || items.length === 0) {
-    return next(new ErrorHandler("All fields are required", 400));
-  }
+  const totalAmount = items.reduce(
+    (acc: number, item: any) => acc + item.price * item.quantity,
+    0,
+  );
 
-  // 🔎 provider exists?
-  const provider = await prisma.providerProfile.findUnique({
-    where: { id: providerId },
-  });
+  const result = await prisma.$transaction(
+    async (tx) => {
+      const address = await tx.address.create({
+        data: {
+          roadNumber: deliveryAddress.roadNumber,
+          postCode: deliveryAddress.postCode,
+          phone: deliveryAddress.phone,
+          house: deliveryAddress.house,
+          areaName: deliveryAddress.areaName,
+        },
+      });
 
-  if (!provider) {
-    return next(new ErrorHandler("Provider not found", 404));
-  }
+      const order = await tx.order.create({
+        data: {
+          userId,
+          providerId,
+          mealId: items[0].mealId,
+          deliveryAddress: address.id,
+          totalAmount,
+          status: "PLACED",
+        },
+      });
 
-  // 🧮 calculate total amount
-  let totalAmount = 0;
+      const orderItemsData = items.map((item: any) => ({
+        orderId: order.id,
+        customerId: userId,
+        quantity: item.quantity,
+        price: item.price,
+      }));
 
-  const orderItemsData = [];
+      await tx.orderItem.createMany({
+        data: orderItemsData,
+      });
 
-  for (const item of items) {
-    const meal = await prisma.meal.findUnique({
-      where: { id: item.mealId },
-    });
-
-    if (!meal) {
-      return next(
-        new ErrorHandler(`Meal not found with id ${item.mealId}`, 404)
-      );
-    }
-
-    const itemTotal = meal.price * item.quantity;
-    totalAmount += itemTotal;
-
-    orderItemsData.push({
-      mealId: meal.id,
-      quantity: item.quantity,
-      price: meal.price,
-    });
-  }
-
-  // ✅ create order + order items
-  const order = await prisma.order.create({
-    data: {
-      userId,
-      providerId,
-      deliveryAddress,
-      totalAmount,
-      items: {
-        create: orderItemsData,
-      },
+      return order;
     },
-    include: {
-      items: true,
+    {
+      maxWait: 10000,
+      timeout: 20000,
     },
-  });
+  );
 
   res.status(201).json({
     success: true,
     message: "Order placed successfully",
-    order,
+    order: result,
   });
 });

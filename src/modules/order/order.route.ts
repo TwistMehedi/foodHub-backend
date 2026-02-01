@@ -4,6 +4,6 @@ import { middleware } from "../../middleware/middleware";
 
 const router = Router();
 
-router.route("/").post(middleware, createOrder);
+router.route("/order/create").post(middleware, createOrder);
 
 export const orderRouter = router;

@@ -33,6 +33,7 @@ model User {
   reviews         Review[]
   categories      Category[]
   meals           Meal[]
+  orderItems      OrderItem[]
 }
 
 model Meal {
@@ -56,6 +57,7 @@ model Meal {
 
   orderItems OrderItem[]
   reviews    Review[]
+  orders     Order[]
 }
 
 model ProviderProfile {
@@ -96,25 +98,39 @@ model Order {
   id              String      @id @default(uuid())
   userId          String
   providerId      String
-  status          OrderStatus @default(PLACED)
+  mealId          String
   deliveryAddress String
+  status          OrderStatus @default(PLACED)
   totalAmount     Float
   createdAt       DateTime    @default(now())
 
+  meal     Meal            @relation(fields: [mealId], references: [id])
+  address  Address         @relation(fields: [deliveryAddress], references: [id])
   user     User            @relation(fields: [userId], references: [id])
   provider ProviderProfile @relation(fields: [providerId], references: [id])
   items    OrderItem[]
 }
 
 model OrderItem {
-  id       String @id @default(uuid())
-  orderId  String
-  mealId   String
-  quantity Int
-  price    Float
+  id         String @id @default(uuid())
+  orderId    String
+  customerId String
+  quantity   Int
+  price      Float
 
-  order Order @relation(fields: [orderId], references: [id])
-  meal  Meal  @relation(fields: [mealId], references: [id])
+  order Order  @relation(fields: [orderId], references: [id])
+  user  User   @relation(fields: [customerId], references: [id])
+  meal  Meal[]
+}
+
+model Address {
+  id         String  @id @default(uuid())
+  roadNumber String?
+  postCode   String?
+  phone      String
+  house      String
+  areaName   String
+  orders     Order[]
 }
 
 model Review {
