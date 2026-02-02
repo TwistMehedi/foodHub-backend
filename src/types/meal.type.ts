@@ -5,4 +5,5 @@ export interface MealType {
   categoryName?: string;
   views?: string;
   image?: string;
+  imagePublicId?: string;
 }

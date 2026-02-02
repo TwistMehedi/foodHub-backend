@@ -37,15 +37,16 @@ model User {
 }
 
 model Meal {
-  id           String   @id @default(uuid())
-  name         String
-  description  String?
-  price        Float
-  image        String?
-  categoryName String
-  views        Int?
-  isAvailable  Boolean  @default(true)
-  createdAt    DateTime @default(now())
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  price         Float
+  image         String?
+  imagePublicId String?
+  categoryName  String
+  views         Int?
+  isAvailable   Boolean  @default(true)
+  createdAt     DateTime @default(now())
 
   userId     String?
   categoryId String?
@@ -61,13 +62,15 @@ model Meal {
 }
 
 model ProviderProfile {
-  id          String   @id @default(uuid())
-  userId      String   @unique
-  shopName    String
-  description String?
-  address     String
-  isOpen      Boolean? @default(true)
-  createdAt   DateTime @default(now())
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  shopName      String
+  description   String?
+  address       String
+  image         String?
+  imagePublicId String?
+  isOpen        Boolean? @default(true)
+  createdAt     DateTime @default(now())
 
   user       User       @relation(fields: [userId], references: [id])
   orders     Order[]

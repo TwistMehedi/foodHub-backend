@@ -1,11 +1,21 @@
 import { prisma } from "../../lib/prisma";
+import { uploadFile } from "../../utils/cloudinary";
 import { ErrorHandler } from "../../utils/ErrorHandler";
 import TryCatch from "../../utils/TryCatch";
 import { MealsService } from "./meals.service";
 
 export const createResturant = TryCatch(async (req, res, next) => {
   const { shopName, description, address } = req.body;
+
+  const file = req.file;
+
   const userId = req.user?.id as string;
+
+  if (!file) {
+    return next(new ErrorHandler("Please upload a restaurant image", 400));
+  }
+
+  const imageUploadResult = await uploadFile(file.path);
 
   const existingProvider = await prisma.providerProfile.findUnique({
     where: { userId },
@@ -26,6 +36,8 @@ export const createResturant = TryCatch(async (req, res, next) => {
       description,
       address,
       isOpen: true,
+      image: imageUploadResult.secure_url,
+      imagePublicId: imageUploadResult.public_id,
     },
   });
 
@@ -36,12 +48,43 @@ export const createResturant = TryCatch(async (req, res, next) => {
   });
 });
 
-export const createMeal = TryCatch(async (req, res, next) => {
-  const { name, description, price, categoryName } = req.body;
-
+export const getResturant = TryCatch(async (req, res, next) => {
   const userId = req.user?.id as string;
   if (!userId) {
     return next(new ErrorHandler("You are not athorized", 400));
+  }
+  const resturant = await prisma.providerProfile.findUnique({
+    where: {
+      userId,
+    },
+  });
+
+  if (!resturant) {
+    return next(
+      new ErrorHandler("Not have resturant please create first", 400),
+    );
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Resturant goted",
+    resturant,
+  });
+});
+
+export const createMeal = TryCatch(async (req, res, next) => {
+  const { name, description, price, categoryName, image } = req.body;
+
+  const file = req.file;
+
+  const userId = req.user?.id as string;
+
+  if (!userId) {
+    return next(new ErrorHandler("You are not athorized", 400));
+  }
+
+  if (!file) {
+    return next(new ErrorHandler("Please upload a restaurant image", 400));
   }
 
   if (!name || !description || !price || !categoryName) {
@@ -56,8 +99,10 @@ export const createMeal = TryCatch(async (req, res, next) => {
       description,
       price,
       categoryName,
+      image,
     },
     userId,
+    file,
   );
 
   res.status(201).json({
@@ -80,6 +125,7 @@ export const getMels = TryCatch(async (req, res, next) => {
     },
   });
 
+  // console.log(meals);
   return res.status(200).json({
     success: true,
     message: "Founded your all meals",
@@ -94,6 +140,8 @@ export const updateMeal = TryCatch(async (req, res, next) => {
 
   const { name, description, price, image, isAvailable } = req.body;
 
+  const file = req.file!;
+
   if (!mealId) {
     return next(new ErrorHandler("Meal id is required", 400));
   }
@@ -106,6 +154,7 @@ export const updateMeal = TryCatch(async (req, res, next) => {
     { name, description, price, image, isAvailable },
     userId,
     mealId,
+    file,
   );
 
   res.status(200).json({
@@ -255,10 +304,6 @@ export const getCategories = TryCatch(async (req, res, next) => {
       },
     },
   });
-
-  if (categories.length === 0) {
-    return next(new ErrorHandler("Category not found", 404));
-  }
 
   // console.log(categories);
   res.status(200).json({

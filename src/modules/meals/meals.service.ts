@@ -1,11 +1,13 @@
 import { prisma } from "../../lib/prisma";
 import { MealType } from "../../types/meal.type";
+import { deleteImage, uploadFile } from "../../utils/cloudinary";
 import { ErrorHandler } from "../../utils/ErrorHandler";
 
 export const MealsService = {
   mealCreate: async (
-    { name, description, price, categoryName }: MealType,
+    { name, description, price, categoryName, image }: MealType,
     userId: string,
+    file: Express.Multer.File,
   ) => {
     if (!name || !price || !categoryName || !userId) {
       throw new ErrorHandler(
@@ -32,6 +34,8 @@ export const MealsService = {
       throw new ErrorHandler("Category not found", 404);
     }
 
+    const imageUploadResult = await uploadFile(file.path);
+
     const meal = await prisma.meal.create({
       data: {
         name,
@@ -41,10 +45,12 @@ export const MealsService = {
         categoryId: category.id,
         userId: userId,
         providerId: provider?.id,
+        image: imageUploadResult.secure_url,
+        imagePublicId: imageUploadResult.public_id,
       },
     });
 
-    console.log(meal);
+    // console.log(meal);
     return meal;
   },
 
@@ -64,6 +70,7 @@ export const MealsService = {
     },
     userId: string,
     mealId: string,
+    file?: Express.Multer.File,
   ) => {
     const provider = await prisma.providerProfile.findUnique({
       where: {
@@ -87,14 +94,32 @@ export const MealsService = {
       throw new ErrorHandler("Meal not found", 404);
     }
 
+    let imageUrl = meal.image;
+
+    if (file) {
+      try {
+        const uploadResult = await uploadFile(file.path);
+        imageUrl = uploadResult.secure_url;
+
+        if (meal.image) {
+          const publicId = meal.image.split("/").pop()?.split(".")[0];
+          if (publicId) {
+            await deleteImage(publicId);
+          }
+        }
+      } catch (error) {
+        throw new ErrorHandler("Failed to process image upload", 500);
+      }
+    }
+
     const updatedMeal = await prisma.meal.update({
       where: { id: mealId },
       data: {
         name,
         description,
-        price,
-        image,
-        isAvailable,
+        price: Number(price),
+        image: imageUrl,
+        isAvailable: String(isAvailable) === "true",
       },
     });
 

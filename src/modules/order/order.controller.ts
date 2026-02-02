@@ -4,14 +4,15 @@ import TryCatch from "../../utils/TryCatch";
 
 export const createOrder = TryCatch(async (req, res, next) => {
   const userId = req.user?.id as string;
-  console.log(userId);
+  // console.log(userId);
   const { providerId, deliveryAddress, items } = req.body;
-  console.log(items);
+  // console.log(items);
   if (!items || items.length === 0) {
     return next(new ErrorHandler("Cart is empty", 400));
   }
 
-  const totalAmount = items.reduce(
+  let mealItems = Array.from(items);
+  const totalAmount = mealItems.reduce(
     (acc: number, item: any) => acc + item.price * item.quantity,
     0,
   );
@@ -74,6 +75,9 @@ export const getOrderByCustomer = TryCatch(async (req, res, next) => {
     where: {
       customerId: userId,
     },
+    include: {
+      order: true,
+    },
   });
 
   res.status(200).json({
@@ -85,7 +89,7 @@ export const getOrderByCustomer = TryCatch(async (req, res, next) => {
 
 export const singleOrder = TryCatch(async (req, res, next) => {
   const userId = req.user?.id as string;
-  const id = req.params.id as string; // এটি অর্ডারের প্রাইমারি ID
+  const id = req.params.id as string;
 
   const order = await prisma.order.findFirst({
     where: {
@@ -112,5 +116,125 @@ export const singleOrder = TryCatch(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: order,
+  });
+});
+
+export const getOrderByProvider = TryCatch(async (req, res, next) => {
+  const userId = req.user?.id as string;
+  if (!userId) {
+    next(new ErrorHandler("User not fouund", 401));
+  }
+  const providerProfile = await prisma.providerProfile.findUnique({
+    where: {
+      userId,
+    },
+    select: { id: true },
+  });
+
+  const providerId = providerProfile?.id as string;
+
+  const orders = await prisma.order.findMany({
+    where: {
+      providerId,
+    },
+    include: {
+      user: true,
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Your all orders",
+    orders,
+  });
+});
+
+export const singleOrderByProvider = TryCatch(async (req, res, next) => {
+  const userId = req.user?.id as string;
+  const id = req.params.id as string;
+
+  const provider = await prisma.providerProfile.findUnique({
+    where: { userId },
+  });
+
+  if (!provider) {
+    return next(new ErrorHandler("Provider profile not found", 404));
+  }
+
+  const order = await prisma.order.findFirst({
+    where: {
+      id,
+      providerId: provider.id,
+    },
+    include: {
+      user: {
+        select: { name: true, email: true },
+      },
+      address: true,
+      items: {
+        include: {
+          meal: { select: { name: true, price: true } },
+        },
+      },
+    },
+  });
+
+  if (!order) {
+    return next(new ErrorHandler("Order not found or unauthorized", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Order details fetched successfully",
+    data: order,
+  });
+});
+
+export const updateOrderStatus = TryCatch(async (req, res, next) => {
+  const userId = req.user?.id as string;
+
+  if (!userId) {
+    return next(new ErrorHandler("You are unathorized", 401));
+  }
+  const id = req.params.id as string;
+  const { status } = req.body;
+
+  const allowedStatuses = [
+    "PLACED",
+    "PREPARING",
+    "READY",
+    "DELIVERED",
+    "CANCELLED",
+  ];
+
+  if (!allowedStatuses.includes(status)) {
+    return next(
+      new ErrorHandler(
+        `Invalid status. Allowed: ${allowedStatuses.join(", ")}`,
+        400,
+      ),
+    );
+  }
+
+  const existingOrder = await prisma.order.findUnique({
+    where: { id },
+  });
+
+  if (!existingOrder) {
+    return next(new ErrorHandler("Order not found", 404));
+  }
+
+  const updatedOrder = await prisma.order.update({
+    where: { id },
+    data: {
+      status,
+      ...(status === "DELIVERED" ? { deliveredAt: new Date() } : {}),
+    },
+  });
+
+  res.status(200).json({
+    success: true,
+    message: `Order status updated to ${status} successfully`,
+    data: updatedOrder,
   });
 });

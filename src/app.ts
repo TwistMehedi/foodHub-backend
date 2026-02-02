@@ -7,6 +7,7 @@ import { userRouter } from "./modules/user/user.route";
 import { mealsRouter } from "./modules/meals/meals.route";
 import cors from "cors";
 import { orderRouter } from "./modules/order/order.route";
+import { statsRouter } from "./modules/stats/stats.route";
 
 const app: Application = express();
 
@@ -23,6 +24,7 @@ app.use("/api/auth", authRouter);
 app.use("/api", userRouter);
 app.use("/api", mealsRouter);
 app.use("/api", orderRouter);
+app.use("/api/provider", statsRouter);
 
 app.use(errorMiddleware);
 
