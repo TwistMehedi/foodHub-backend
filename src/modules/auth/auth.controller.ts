@@ -146,3 +146,14 @@ export const me = TryCatch(async (req, res) => {
     me,
   });
 });
+
+export const logoutUser = TryCatch(async (_, res) => {
+  res
+    .clearCookie("token", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+    })
+    .status(200)
+    .json({ message: "Logged out successfully" });
+});

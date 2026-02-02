@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  allOrdersForAdmin,
   createOrder,
   getOrderByCustomer,
   getOrderByProvider,
@@ -11,18 +12,26 @@ import { authorizeRoles, middleware } from "../../middleware/middleware";
 
 const router = Router();
 
-router.route("/order/create").post(middleware, createOrder);
-router.route("/order/get/me").get(middleware, getOrderByCustomer);
+router.route("/create").post(middleware, createOrder);
+
+router.route("/me").get(middleware, getOrderByCustomer);
+
 router
-  .route("/order/get/me/provider")
+  .route("/me/provider")
   .get(middleware, authorizeRoles("PROVIDER"), getOrderByProvider);
-router.route("/order/single/:id").get(middleware, singleOrder);
+
+router.route("/:id").get(middleware, singleOrder);
+
 router
-  .route("/order/provider/:id")
+  .route("/provider/for/:id")
   .get(middleware, authorizeRoles("PROVIDER"), singleOrderByProvider);
 
 router
-  .route("/order/status/:id")
+  .route("/status/:id")
   .patch(middleware, authorizeRoles("PROVIDER"), updateOrderStatus);
+
+router
+  .route("/admin/orders")
+  .get(middleware, authorizeRoles("ADMIN"), allOrdersForAdmin);
 
 export const orderRouter = router;

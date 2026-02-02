@@ -305,7 +305,7 @@ export const getCategories = TryCatch(async (req, res, next) => {
     },
   });
 
-  // console.log(categories);
+  console.log(categories);
   res.status(200).json({
     success: true,
     count: categories.length,
@@ -325,10 +325,6 @@ export const getMealsInHome = TryCatch(async (req, res, next) => {
       category: true,
     },
   });
-
-  if (meals.length === 0) {
-    return next(new ErrorHandler("Meals not found", 404));
-  }
 
   res.status(200).json({
     success: true,

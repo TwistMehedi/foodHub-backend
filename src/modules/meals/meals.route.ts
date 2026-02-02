@@ -33,32 +33,41 @@ router
   .get(middleware, authorizeRoles("ADMIN", "PROVIDER"), getResturant);
 
 router
-  .route("/provider/meals")
-  .post(middleware, upload.single("image"), createMeal);
+  .route("/create")
+  .post(
+    middleware,
+    authorizeRoles("ADMIN", "PROVIDER"),
+    upload.single("image"),
+    createMeal,
+  );
+
 router
-  .route("/provider/meals/me")
+  .route("/provider/me")
   .get(middleware, authorizeRoles("ADMIN", "PROVIDER"), getMels);
+
 router
-  .route("/meals/:id")
+  .route("/:id")
   .put(
     middleware,
     authorizeRoles("ADMIN", "PROVIDER"),
     upload.single("image"),
     updateMeal,
   );
+
 router
-  .route("/meals/:id")
+  .route("/:id")
   .delete(middleware, authorizeRoles("ADMIN", "PROVIDER"), deleteMeal);
+
 router
-  .route("/meals/delete/category/:id")
+  .route("/category/delete/:id")
   .delete(middleware, authorizeRoles("ADMIN"), deleteCategory);
 
-//pblic route
-router.route("/meals").get(getAllMeals);
-router.route("/meals/:id").get(getMealById);
+router.route("/categories").get(getCategories);
+router.route("/home").get(getMealsInHome);
+
+router.route("/").get(getAllMeals);
+router.route("/:id").get(getMealById);
 router.route("/providers").get(getAllProvider);
 router.route("/provider/:id").get(getProviderById);
-router.route("/categories").get(getCategories);
-router.route("/home/meals").get(getMealsInHome);
 
 export const mealsRouter = router;

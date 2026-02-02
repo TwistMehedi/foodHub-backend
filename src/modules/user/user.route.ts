@@ -9,10 +9,9 @@ import {
 
 const router = express.Router();
 
-// admin route
 router
   .route("/admin/create-category")
-  .post(middleware, authorizeRoles("ADMIN", "PROVIDER"), createCategory);
+  .post(middleware, authorizeRoles("ADMIN"), createCategory);
 
 router
   .route("/admin/users")
@@ -22,11 +21,6 @@ router
   .route("/admin/users/:id")
   .patch(middleware, authorizeRoles("ADMIN"), updateUserStatusByAdmin);
 
-router
-  .route("/admin/users/:id")
-  .patch(middleware, authorizeRoles("ADMIN"), updateUserStatusByAdmin);
-
-//user route
-router.route("/user/me").get(middleware, me);
+router.route("/me").get(middleware, me);
 
 export const userRouter = router;

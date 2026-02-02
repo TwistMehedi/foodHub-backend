@@ -238,3 +238,25 @@ export const updateOrderStatus = TryCatch(async (req, res, next) => {
     data: updatedOrder,
   });
 });
+
+export const allOrdersForAdmin = TryCatch(async (req, res, next) => {
+  const orders = await prisma.order.findMany({
+    include: {
+      user: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  // console.log(orders);
+  return res.status(200).json({
+    success: true,
+    orders,
+  });
+});

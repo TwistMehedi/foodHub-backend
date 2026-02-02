@@ -21,10 +21,14 @@ app.use(
   }),
 );
 app.use("/api/auth", authRouter);
-app.use("/api", userRouter);
-app.use("/api", mealsRouter);
-app.use("/api", orderRouter);
-app.use("/api/provider", statsRouter);
+
+app.use("/api/user", userRouter);
+
+app.use("/api/meals", mealsRouter);
+
+app.use("/api/order", orderRouter);
+
+app.use("/api/stats", statsRouter);
 
 app.use(errorMiddleware);
 
