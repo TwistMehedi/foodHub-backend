@@ -1,8 +1,8 @@
-import envConfig from "../config/envConfig";
 import TryCatch from "../utils/TryCatch";
-import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { ErrorHandler } from "../utils/ErrorHandler";
+import { auth } from "../lib/auth";
+import { fromNodeHeaders } from "better-auth/node";
 
 declare module "express-serve-static-core" {
   interface Request {
@@ -17,17 +17,20 @@ declare module "express-serve-static-core" {
 
 export const middleware = TryCatch(
   async (req: Request, res: Response, next: NextFunction) => {
-    const token =
-      req.cookies?.token || req.headers.authorization?.split(" ")[1];
-    // console.log(token);
-    if (!token) {
-      return next(new ErrorHandler("No token provided", 401));
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+
+    if (!session) {
+      return next(
+        new ErrorHandler("Please login to access this resource", 401),
+      );
     }
-    const decoded = jwt.verify(token, envConfig.jwt_secret as string);
-    // console.log(decoded);
+
     req.user = {
-      id: (decoded as any).userId,
-      role: (decoded as any).role,
+      id: session.user.id,
+      email: session.user.email,
+      role: session.user.role,
     };
 
     next();

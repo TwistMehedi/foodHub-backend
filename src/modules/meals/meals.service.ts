@@ -34,7 +34,7 @@ export const MealsService = {
       throw new ErrorHandler("Category not found", 404);
     }
 
-    const imageUploadResult = await uploadFile(file.path);
+    const imageUploadResult: any = await uploadFile(file.buffer);
 
     const meal = await prisma.meal.create({
       data: {
@@ -98,8 +98,8 @@ export const MealsService = {
 
     if (file) {
       try {
-        const uploadResult = await uploadFile(file.path);
-        imageUrl = uploadResult.secure_url;
+        const uploadResult: any = await uploadFile(file.buffer);
+        imageUrl = uploadResult?.secure_url;
 
         if (meal.image) {
           const publicId = meal.image.split("/").pop()?.split(".")[0];

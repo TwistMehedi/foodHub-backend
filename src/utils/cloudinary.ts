@@ -1,8 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import dotenv from "dotenv";
 import envConfig from "../config/envConfig";
-import fs from "fs";
-dotenv.config();
 
 cloudinary.config({
   cloud_name: envConfig.cloud_name!,
@@ -10,36 +7,29 @@ cloudinary.config({
   api_secret: envConfig.api_secret!,
 });
 
-export const uploadFile = async (filePath: string) => {
-  try {
-    const result = await cloudinary.uploader.upload(filePath, {
-      resource_type: "auto",
-    });
+export const uploadFile = async (fileBuffer: Buffer) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { resource_type: "auto", folder: "vercel_uploads" },
+      (error, result) => {
+        if (error) {
+          console.error("Cloudinary Upload Error:", error);
+          return reject(error);
+        }
+        resolve(result);
+      },
+    );
 
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-
-    console.log("File uploaded:", result.secure_url);
-    return result;
-  } catch (error) {
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-    console.error("Error uploading file to Cloudinary:", error);
-    throw error;
-  }
+    uploadStream.end(fileBuffer);
+  });
 };
 
 export const deleteImage = async (publicId: string) => {
   try {
-    const result = await cloudinary.uploader.destroy(publicId, {
-      resource_type: "image",
-    });
-    console.log("Image deleted:", result);
+    const result = await cloudinary.uploader.destroy(publicId);
     return result;
   } catch (error) {
-    console.error("Error deleting image from Cloudinary:", error);
+    console.error("Error deleting image:", error);
     throw error;
   }
 };

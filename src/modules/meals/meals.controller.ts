@@ -7,15 +7,13 @@ import { MealsService } from "./meals.service";
 export const createResturant = TryCatch(async (req, res, next) => {
   const { shopName, description, address } = req.body;
 
-  const file = req.file;
-
-  const userId = req.user?.id as string;
-
-  if (!file) {
+  if (!req.file) {
     return next(new ErrorHandler("Please upload a restaurant image", 400));
   }
 
-  const imageUploadResult = await uploadFile(file.path);
+  const userId = req.user?.id as string;
+
+  const imageUploadResult: any = await uploadFile(req.file.buffer);
 
   const existingProvider = await prisma.providerProfile.findUnique({
     where: { userId },
@@ -140,7 +138,9 @@ export const updateMeal = TryCatch(async (req, res, next) => {
 
   const { name, description, price, image, isAvailable } = req.body;
 
-  const file = req.file!;
+  if (!req.file) {
+    return next(new ErrorHandler("Please upload a restaurant image", 400));
+  }
 
   if (!mealId) {
     return next(new ErrorHandler("Meal id is required", 400));
@@ -154,7 +154,7 @@ export const updateMeal = TryCatch(async (req, res, next) => {
     { name, description, price, image, isAvailable },
     userId,
     mealId,
-    file,
+    req.file,
   );
 
   res.status(200).json({
@@ -305,11 +305,10 @@ export const getCategories = TryCatch(async (req, res, next) => {
     },
   });
 
-  console.log(categories);
   res.status(200).json({
     success: true,
     count: categories.length,
-    message: "Categories fetched successfully",
+    message: "Categories fetched successfully!",
     data: categories,
   });
 });
