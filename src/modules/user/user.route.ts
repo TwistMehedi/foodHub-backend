@@ -2,9 +2,8 @@ import express from "express";
 import { authorizeRoles, middleware } from "../../middleware/middleware";
 import {
   createCategory,
+  editProfile,
   getUsersByAdmin,
-  me,
-  updateUserStatusByAdmin,
 } from "./user.controller";
 
 const router = express.Router();
@@ -18,9 +17,11 @@ router
   .get(middleware, authorizeRoles("ADMIN"), getUsersByAdmin);
 
 router
-  .route("/admin/users/:id")
-  .patch(middleware, authorizeRoles("ADMIN"), updateUserStatusByAdmin);
-
-router.route("/me").get(middleware, me);
+  .route("/profile-update")
+  .put(
+    middleware,
+    authorizeRoles("ADMIN", "CUSTOMER", "PROVIDER"),
+    editProfile,
+  );
 
 export const userRouter = router;

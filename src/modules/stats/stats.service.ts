@@ -7,7 +7,7 @@ export const getProviderDashboardStats = async (userId: string) => {
   });
 
   if (!providerProfile) {
-    throw new Error("Provider profile not found for this user");
+    throw new Error("Shop not found you create your shop or resturant");
   }
 
   const providerId = providerProfile.id;

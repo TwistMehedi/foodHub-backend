@@ -1,5 +1,5 @@
-import { Role } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
+import { Role } from "../../types/role";
 import { ErrorHandler } from "../../utils/ErrorHandler";
 import TryCatch from "../../utils/TryCatch";
 
@@ -58,63 +58,48 @@ export const getUsersByAdmin = TryCatch(async (req, res, next) => {
   });
 });
 
-export const updateUserStatusByAdmin = TryCatch(async (req, res, next) => {
-  const admin = req.user;
-  const userId = req.params.id as string;
-  const { status } = req.body;
+export const editProfile = TryCatch(async (req, res, next) => {
+  const loggedInUserId = req.user?.id as string;
+  const loggedInUserRole = req.user?.role;
 
-  if (!admin || admin.role !== Role.ADMIN) {
-    return next(new ErrorHandler("You are not authorized", 403));
+  const { targetUserId, name, email, role, status, isVerified, emailVerified } =
+    req.body;
+
+  if (!loggedInUserId) {
+    return next(new ErrorHandler("Unauthorized", 401));
   }
 
-  if (!userId) {
-    return next(new ErrorHandler("User id is required", 400));
-  }
+  let updateData: any = { name };
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-  });
+  let idToUpdate = loggedInUserId;
 
-  if (!user) {
-    return next(new ErrorHandler("User not found", 404));
-  }
+  if (loggedInUserRole === "ADMIN") {
+    if (targetUserId) idToUpdate = targetUserId;
 
-  if (user.id === admin.id) {
-    return next(new ErrorHandler("Admin cannot change own status", 400));
+    if (email) updateData.email = email;
+    if (role) updateData.role = role;
+    if (status) updateData.status = status;
+
+    if (isVerified !== undefined)
+      updateData.isVerified = isVerified === "true" || isVerified === true;
+    if (emailVerified !== undefined)
+      updateData.emailVerified =
+        emailVerified === "true" || emailVerified === true;
   }
 
   const updatedUser = await prisma.user.update({
-    where: { id: userId },
-    data: { status },
-  });
-
-  res.status(200).json({
-    success: true,
-    message: "User status updated successfully",
-    user: updatedUser,
-  });
-});
-
-export const me = TryCatch(async (req, res, next) => {
-  const userId = req.user?.id as string;
-
-  if (!userId) {
-    return next(new ErrorHandler("You cannot access this profile", 401));
-  }
-
-  const user = await prisma.user.findUnique({
     where: {
-      id: userId,
+      id: idToUpdate,
     },
+    data: updateData,
   });
-
-  if (!user) {
-    return next(new ErrorHandler("User not found", 401));
-  }
 
   res.status(200).json({
     success: true,
-    message: "Welcome to your profile",
-    user,
+    message:
+      loggedInUserRole === "ADMIN"
+        ? "User updated by Admin"
+        : "Profile updated successfully",
+    user: updatedUser,
   });
 });

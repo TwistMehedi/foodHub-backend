@@ -1,39 +1,47 @@
-import bcrypt from "bcryptjs";
-import { ErrorHandler } from "../utils/ErrorHandler";
-import { Role } from "../../generated/prisma/enums";
+import { auth } from "../lib/auth";
 import { prisma } from "../lib/prisma";
+import { Role } from "../types/role";
 
 async function seedAdmin() {
-  const admin = {
-    name: "Mehedi Hasan",
-    email: "ataul1708@gmail.com",
-    role: Role.ADMIN,
-    password: "ataul1708@gmail.com",
-    status: "ACTIVE",
-    isVerified: true,
-  };
+  try {
+    const adminEmail = "a@gmail.com";
+    const adminPassword = "a@gmail.com";
 
-  const exists = await prisma.user.findUnique({
-    where: { email: admin.email },
-  });
+    const exists = await prisma.user.findUnique({
+      where: { email: adminEmail },
+    });
 
-  if (exists) {
-    return new ErrorHandler("User alredy exists", 400);
+    if (exists) {
+      console.log("Admin user already exists.");
+      return;
+    }
+
+    const user = await auth.api.signUpEmail({
+      body: {
+        email: adminEmail,
+        password: adminPassword,
+        name: "Mehedi Hasan",
+        role: Role.ADMIN,
+      },
+    });
+
+    if (user) {
+      await prisma.user.update({
+        where: { email: adminEmail },
+        data: {
+          status: "ACTIVE",
+          isVerified: true,
+          emailVerified: true,
+        },
+      });
+
+      console.log("✅ Admin seeded successfully with Role.ADMIN!");
+    }
+  } catch (error) {
+    console.error("❌ Error seeding admin:", error);
+  } finally {
+    process.exit();
   }
-
-  const hashedPassword = await bcrypt.hash(admin.password, 10);
-
-  await prisma.user.create({
-    data: {
-      name: admin.name,
-      email: admin.email,
-      password: hashedPassword,
-      role: admin.role,
-      isVerified: admin.isVerified,
-    },
-  });
-
-  console.log("Admin created successfully");
 }
 
 seedAdmin();
