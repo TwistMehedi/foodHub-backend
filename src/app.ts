@@ -11,6 +11,7 @@ import { errorMiddleware } from "./middleware/errorMiddleware ";
 import envConfig from "./config/envConfig";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
+import { reviewRouter } from "./modules/review/review.route";
 
 const app: Application = express();
 
@@ -31,6 +32,7 @@ app.use("/api/user", userRouter);
 app.use("/api/meals", mealsRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/stats", statsRouter);
+app.use("/api/review", reviewRouter);
 
 app.use(errorMiddleware);
 

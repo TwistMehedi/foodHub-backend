@@ -138,9 +138,7 @@ export const updateMeal = TryCatch(async (req, res, next) => {
 
   const { name, description, price, image, isAvailable } = req.body;
 
-  if (!req.file) {
-    return next(new ErrorHandler("Please upload a restaurant image", 400));
-  }
+  const file = req?.file!;
 
   if (!mealId) {
     return next(new ErrorHandler("Meal id is required", 400));
@@ -154,7 +152,7 @@ export const updateMeal = TryCatch(async (req, res, next) => {
     { name, description, price, image, isAvailable },
     userId,
     mealId,
-    req.file,
+    file,
   );
 
   res.status(200).json({
@@ -286,6 +284,9 @@ export const getProviderById = TryCatch(async (req, res, next) => {
   const provider = await prisma.providerProfile.findUnique({
     where: {
       id: providerId,
+    },
+    include: {
+      meals: true,
     },
   });
 
