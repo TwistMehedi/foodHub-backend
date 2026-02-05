@@ -23,6 +23,11 @@ export const auth = betterAuth({
 
   baseURL: process.env.BETTER_AUTH_URL,
 
+  cookie: {
+    crossSubdomain: true,
+    sameSite: "lax",
+  },
+
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
@@ -66,6 +71,7 @@ export const auth = betterAuth({
         type: "string",
         required: true,
         input: true,
+        defaultValue: "CUSTOMER",
       },
     },
   },

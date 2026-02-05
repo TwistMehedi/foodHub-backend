@@ -213,6 +213,7 @@ export const getAllMeals = TryCatch(async (req, res, next) => {
       where: whereCondition,
       include: {
         provider: true,
+        reviews: true,
       },
       orderBy: {
         createdAt: "desc",
