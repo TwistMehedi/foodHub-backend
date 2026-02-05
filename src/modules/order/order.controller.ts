@@ -242,21 +242,38 @@ export const updateOrderStatus = TryCatch(async (req, res, next) => {
 export const allOrdersForAdmin = TryCatch(async (req, res, next) => {
   const orders = await prisma.order.findMany({
     include: {
-      user: {
-        select: {
-          name: true,
-          email: true,
-        },
-      },
+      user: true,
     },
     orderBy: {
       createdAt: "desc",
     },
   });
 
-  // console.log(orders);
   return res.status(200).json({
     success: true,
     orders,
+  });
+});
+
+export const updateOrderStatusByAdmin = TryCatch(async (req, res, next) => {
+  const { orderId, status } = req.body;
+
+  if (!orderId || !status) {
+    return next(new ErrorHandler("Order ID and Status are required!", 400));
+  }
+
+  const updatedOrder = await prisma.order.update({
+    where: {
+      id: orderId,
+    },
+    data: {
+      status: status,
+    },
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Order status updated successfully",
+    order: updatedOrder,
   });
 });

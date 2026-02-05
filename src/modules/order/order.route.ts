@@ -7,6 +7,7 @@ import {
   singleOrder,
   singleOrderByProvider,
   updateOrderStatus,
+  updateOrderStatusByAdmin,
 } from "./order.controller";
 import { authorizeRoles, middleware } from "../../middleware/middleware";
 
@@ -33,5 +34,9 @@ router
 router
   .route("/admin/orders")
   .get(middleware, authorizeRoles("ADMIN"), allOrdersForAdmin);
+
+router
+  .route("/admin/order/status")
+  .patch(middleware, authorizeRoles("ADMIN"), updateOrderStatusByAdmin);
 
 export const orderRouter = router;

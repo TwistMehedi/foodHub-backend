@@ -1,47 +1,51 @@
-import { auth } from "../lib/auth";
 import { prisma } from "../lib/prisma";
 import { Role } from "../types/role";
 
-async function seedAdmin() {
+async function bootstrapSuperUser() {
   try {
-    const adminEmail = "a@gmail.com";
-    const adminPassword = "a@gmail.com";
+    const superUserPayload = {
+      name: "Loyot",
+      email: "loyot30073@aixind.com",
+      role: Role.ADMIN,
+      password: "loyot30073@aixind.com",
+    };
 
-    const exists = await prisma.user.findUnique({
-      where: { email: adminEmail },
-    });
-
-    if (exists) {
-      console.log("Admin user already exists.");
-      return;
-    }
-
-    const user = await auth.api.signUpEmail({
-      body: {
-        email: adminEmail,
-        password: adminPassword,
-        name: "Mehedi Hasan",
-        role: Role.ADMIN,
+    const userAlreadyThere = await prisma.user.findUnique({
+      where: {
+        email: superUserPayload.email,
       },
     });
 
-    if (user) {
+    if (userAlreadyThere) {
+      throw new Error("Account already present!");
+    }
+
+    const registrationResponse = await fetch(
+      "http://localhost:3000/api/auth/sign-up/email",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(superUserPayload),
+      },
+    );
+
+    if (registrationResponse.ok) {
       await prisma.user.update({
-        where: { email: adminEmail },
+        where: {
+          email: superUserPayload.email,
+        },
         data: {
-          status: "ACTIVE",
-          isVerified: true,
           emailVerified: true,
         },
       });
-
-      console.log("✅ Admin seeded successfully with Role.ADMIN!");
     }
-  } catch (error) {
-    console.error("❌ Error seeding admin:", error);
-  } finally {
-    process.exit();
+
+    console.log("SEED ADMIN CREATE COMPLETED SUCCESSFULLY");
+  } catch (err) {
+    console.error("Bootstrap failed:", err);
   }
 }
 
-seedAdmin();
+bootstrapSuperUser();
