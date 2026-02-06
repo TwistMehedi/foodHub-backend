@@ -24,8 +24,12 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
 
   cookie: {
-    crossSubdomain: true,
     sameSite: "lax",
+    secure: true,
+  },
+
+  advanced: {
+    useSecureCookies: true,
   },
 
   emailAndPassword: {
