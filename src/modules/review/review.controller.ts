@@ -3,8 +3,10 @@ import { ErrorHandler } from "../../utils/ErrorHandler";
 import TryCatch from "../../utils/TryCatch";
 
 export const createReview = TryCatch(async (req, res, next) => {
+  const userId = req.user?.id;
+
   try {
-    const { rating, comment, userId, mealId } = req.body;
+    const { rating, comment, mealId } = req.body;
 
     if (!rating || !userId || !mealId) {
       return next(new ErrorHandler("Rating not created", 400));

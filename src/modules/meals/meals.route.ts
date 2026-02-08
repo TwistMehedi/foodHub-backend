@@ -13,6 +13,9 @@ import {
   getMealsInHome,
   deleteCategory,
   getResturant,
+  editCategory,
+  allResturant,
+  editResturant,
 } from "./meals.controller";
 import { authorizeRoles, middleware } from "../../middleware/middleware";
 import upload from "../../middleware/multer";
@@ -61,6 +64,18 @@ router
 router
   .route("/category/delete/:id")
   .delete(middleware, authorizeRoles("ADMIN"), deleteCategory);
+
+router
+  .route("/edit/category")
+  .put(middleware, authorizeRoles("ADMIN"), editCategory);
+
+router
+  .route("/edit/resturant")
+  .put(middleware, authorizeRoles("ADMIN", "PROVIDER"), editResturant);
+
+router
+  .route("/admin/resturants")
+  .get(middleware, authorizeRoles("ADMIN"), allResturant);
 
 router.route("/categories").get(getCategories);
 router.route("/home").get(getMealsInHome);

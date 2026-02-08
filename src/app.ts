@@ -14,6 +14,7 @@ import { auth } from "./lib/auth";
 import { reviewRouter } from "./modules/review/review.route";
 
 const app: Application = express();
+app.set("trust proxy", 1);
 
 app.use(express.json());
 app.use(morgan("dev"));

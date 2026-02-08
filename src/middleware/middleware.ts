@@ -22,6 +22,7 @@ export const middleware = TryCatch(
     });
 
     if (!session) {
+      console.log("No Session Found. Headers received:", req.headers.cookie);
       return next(
         new ErrorHandler("Please login to access this resource", 401),
       );

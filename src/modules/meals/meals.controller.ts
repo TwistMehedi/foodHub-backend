@@ -356,3 +356,73 @@ export const deleteCategory = TryCatch(async (req, res, next) => {
     message: "Category deleted successfully",
   });
 });
+
+export const editCategory = TryCatch(async (req, res, next) => {
+  // edit/category
+  const { name, id } = req.body;
+  if (!name || !id) {
+    return next(new ErrorHandler("Somthing is missing", 404));
+  }
+
+  const update = await prisma.category.update({
+    where: {
+      id,
+    },
+    data: {
+      name,
+    },
+  });
+
+  return res.status(202).json({
+    message: "Category name success",
+    success: true,
+    update,
+  });
+});
+
+export const allResturant = TryCatch(async (req, res, next) => {
+  const restaurants = await prisma.providerProfile.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  if (!restaurants || restaurants.length === 0) {
+    return next(new ErrorHandler("No restaurants found", 404));
+  }
+
+  return res.status(200).json({
+    success: true,
+    count: restaurants.length,
+    restaurants,
+  });
+});
+
+export const editResturant = TryCatch(async (req, res, next) => {
+  const { shopName, isOpen, id } = req.body;
+
+  if (isOpen === undefined || !id) {
+    return next(
+      new ErrorHandler(
+        "Please provide all required fields (shopName, isOpen, id)",
+        400,
+      ),
+    );
+  }
+
+  const updatedRestaurant = await prisma.providerProfile.update({
+    where: {
+      id: id,
+    },
+    data: {
+      shopName,
+      isOpen: Boolean(isOpen),
+    },
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Restaurant updated successfully",
+    restaurant: updatedRestaurant,
+  });
+});
