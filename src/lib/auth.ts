@@ -29,7 +29,10 @@ export const auth = betterAuth({
     disableCSRFCheck: true,
   },
 
-  trustedOrigins: [envConfig.app_url as string],
+  trustedOrigins: [
+    "http://localhost:3000",
+    "https://client-sandy-kappa.vercel.app",
+  ],
 
   baseURL: process.env.BETTER_AUTH_URL,
 
