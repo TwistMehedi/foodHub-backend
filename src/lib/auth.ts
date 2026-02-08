@@ -19,16 +19,6 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
-  advanced: {
-    cookiePrefix: "better-auth",
-
-    useSecureCookies: envConfig.node_env === "production",
-    crossSubDomainCookies: {
-      enabled: false,
-    },
-    disableCSRFCheck: true,
-  },
-
   trustedOrigins: [
     "http://localhost:3000",
     "https://client-sandy-kappa.vercel.app",
@@ -36,15 +26,25 @@ export const auth = betterAuth({
 
   baseURL: process.env.BETTER_AUTH_URL,
 
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true,
+  },
+
+  advanced: {
+    cookiePrefix: "better-auth",
+
+    useSecureCookies: true,
+    crossSubDomainCookies: {
+      enabled: false,
+    },
+    disableCSRFCheck: true,
+  },
+
   cookie: {
     sameSite: "none",
     secure: true,
     httpOnly: true,
-  },
-
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: true,
   },
 
   emailVerification: {

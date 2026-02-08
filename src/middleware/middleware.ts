@@ -21,12 +21,23 @@ export const middleware = TryCatch(
       headers: fromNodeHeaders(req.headers),
     });
 
+    if (session) {
+      console.log("seesion is here", session);
+    }
     if (!session) {
-      console.log("No Session Found. Headers received:", req.headers.cookie);
+      console.log("Session not found:", req.headers);
+
       return next(
         new ErrorHandler("Please login to access this resource", 401),
       );
     }
+
+    // if (!session) {
+    //   console.log("No Session Found. Headers received:", req.headers.cookie);
+    //   return next(
+    //     new ErrorHandler("Please login to access this resource", 401),
+    //   );
+    // }
 
     req.user = {
       id: session.user.id,
