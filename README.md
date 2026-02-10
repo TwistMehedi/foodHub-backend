@@ -18,7 +18,7 @@ Framework: Express.js
 
 ORM: Prisma
 
-Authentication: JWT (JSON Web Token)
+Authentication: Betther Auth (session based aythentucation)
 
 Environment Management: Dotenv
 
