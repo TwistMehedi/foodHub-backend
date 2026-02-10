@@ -7,7 +7,7 @@ import {
 
 export const getDashboardStats = TryCatch(async (req, res, next) => {
   const userId = req.user?.id;
-  // console.log(userId);
+  console.log(userId);
   if (!userId) {
     return next(new ErrorHandler("Provider access required", 403));
   }

@@ -1,16 +1,12 @@
 import { prisma } from "../../lib/prisma";
 
 export const getProviderDashboardStats = async (userId: string) => {
-  const providerProfile = await prisma.providerProfile.findUnique({
+  const providerProfile = (await prisma.providerProfile.findUnique({
     where: { userId: userId },
     select: { id: true },
-  });
+  })) as any;
 
-  if (!providerProfile) {
-    throw new Error("Shop not found you create your shop or resturant");
-  }
-
-  const providerId = providerProfile.id;
+  const providerId = providerProfile?.id;
 
   const [totalMeals, totalOrders, earningsData, recentOrders] =
     await Promise.all([

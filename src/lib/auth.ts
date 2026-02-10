@@ -19,10 +19,7 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
-  trustedOrigins: [
-    "http://localhost:3000",
-    "https://client-sandy-kappa.vercel.app",
-  ],
+  trustedOrigins: ["http://localhost:3000", process.env.APP_URL as string],
 
   baseURL: process.env.BETTER_AUTH_URL,
 
@@ -45,6 +42,7 @@ export const auth = betterAuth({
     sameSite: "none",
     secure: true,
     httpOnly: true,
+    path: "/",
   },
 
   emailVerification: {

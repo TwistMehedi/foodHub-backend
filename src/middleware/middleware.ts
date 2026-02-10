@@ -17,27 +17,21 @@ declare module "express-serve-static-core" {
 
 export const middleware = TryCatch(
   async (req: Request, res: Response, next: NextFunction) => {
+    console.log("Cookies:", req.headers.cookie);
+
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(req.headers),
     });
 
-    if (session) {
-      console.log("seesion is here", session);
-    }
+    console.log(session);
+
     if (!session) {
-      console.log("Session not found:", req.headers);
+      console.log("Session not found:", session);
 
       return next(
         new ErrorHandler("Please login to access this resource", 401),
       );
     }
-
-    // if (!session) {
-    //   console.log("No Session Found. Headers received:", req.headers.cookie);
-    //   return next(
-    //     new ErrorHandler("Please login to access this resource", 401),
-    //   );
-    // }
 
     req.user = {
       id: session.user.id,

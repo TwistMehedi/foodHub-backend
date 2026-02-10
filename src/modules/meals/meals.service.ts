@@ -27,7 +27,7 @@ export const MealsService = {
     });
 
     if (!provider) {
-      throw new ErrorHandler("Provider is required", 400);
+      throw new ErrorHandler("Shope is required", 400);
     }
 
     if (!category) {

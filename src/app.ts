@@ -22,10 +22,8 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://client-sandy-kappa.vercel.app"],
+    origin: ["http://localhost:3000", envConfig.app_url as string],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
   }),
 );
 

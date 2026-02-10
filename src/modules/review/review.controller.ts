@@ -5,6 +5,10 @@ import TryCatch from "../../utils/TryCatch";
 export const createReview = TryCatch(async (req, res, next) => {
   const userId = req.user?.id;
 
+  if (!userId) {
+    return next(new ErrorHandler("User id not found", 404));
+  }
+
   try {
     const { rating, comment, mealId } = req.body;
 

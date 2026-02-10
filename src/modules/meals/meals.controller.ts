@@ -57,11 +57,11 @@ export const getResturant = TryCatch(async (req, res, next) => {
     },
   });
 
-  if (!resturant) {
-    return next(
-      new ErrorHandler("Not have resturant please create first", 400),
-    );
-  }
+  // if (!resturant) {
+  //   return next(
+  //     new ErrorHandler("Not have resturant please create first", 400),
+  //   );
+  // }
 
   res.status(200).json({
     success: true,
