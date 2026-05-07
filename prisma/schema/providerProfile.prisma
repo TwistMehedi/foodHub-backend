@@ -1,0 +1,16 @@
+model ProviderProfile {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  shopName      String
+  description   String?
+  address       String
+  image         String?
+  imagePublicId String?
+  isOpen        Boolean? @default(true)
+  createdAt     DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id])
+  orders     Order[]
+  categories Category[]
+  meals      Meal[]
+}

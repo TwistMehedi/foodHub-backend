@@ -1,0 +1,11 @@
+
+model Category {
+  id                String           @id @default(uuid())
+  name              String           @unique
+  isActive          Boolean          @default(true)
+  meals             Meal[]
+  user              User?            @relation(fields: [userId], references: [id])
+  userId            String?
+  providerProfile   ProviderProfile? @relation(fields: [providerProfileId], references: [id])
+  providerProfileId String?
+}
