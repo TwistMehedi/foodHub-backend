@@ -1,7 +1,8 @@
 import app from "./app";
+import envConfig from "./config/envConfig";
 import { prisma } from "./lib/prisma";
 
-const PORT = process.env.PORT || 3000;
+const PORT = envConfig.port || 3000;
 
 async function main() {
   try {

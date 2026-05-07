@@ -11,6 +11,7 @@ const envConfig = {
   api_key: process.env.API_KEY,
   api_secret: process.env.API_SECRET,
   app_url: process.env.APP_URL,
+  better_auth_url: process.env.BETTER_AUTH_URL
 };
 
 export default envConfig;

@@ -187,6 +187,7 @@ export const deleteMeal = TryCatch(async (req, res, next) => {
 export const getAllMeals = TryCatch(async (req, res, next) => {
   const searchTerm = req.query.searchTerm as string;
   const category = req.query.category as string;
+  const sort = req.query.sort as string;
 
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
@@ -208,16 +209,32 @@ export const getAllMeals = TryCatch(async (req, res, next) => {
     };
   }
 
+  let orderBy: any = { createdAt: "desc" };
+
+  if (sort === "price_asc") {
+    orderBy = { price: "asc" };
+  } else if (sort === "price_desc") {
+    orderBy = { price: "desc" };
+  } else if (sort === "rating") {
+    orderBy = { createdAt: "desc" }; // For now, fallback to createdAt
+  }
+
   const [meals, totalCount] = await Promise.all([
     prisma.meal.findMany({
       where: whereCondition,
       include: {
-        provider: true,
-        reviews: true,
+        provider: {
+          select: {
+            shopName: true,
+          },
+        },
+        reviews: {
+          select: {
+            rating: true,
+          },
+        },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy,
       skip: skip,
       take: limit,
     }),
@@ -251,9 +268,29 @@ export const getMealById = TryCatch(async (req, res, next) => {
       id: mealId,
     },
     include: {
-      provider: true,
+      provider: {
+        select: {
+          shopName: true,
+          description: true,
+          address: true,
+          image: true,
+        },
+      },
+      reviews: {
+        include: {
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
     },
   });
+
+  if (!meal) {
+    return next(new ErrorHandler("Meal not found", 404));
+  }
 
   res.status(200).json({
     success: true,
@@ -261,6 +298,7 @@ export const getMealById = TryCatch(async (req, res, next) => {
     meal,
   });
 });
+
 
 export const getAllProvider = TryCatch(async (req, res, next) => {
   const providers = await prisma.providerProfile.findMany();

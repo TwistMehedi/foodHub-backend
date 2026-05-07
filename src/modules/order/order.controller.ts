@@ -4,11 +4,18 @@ import TryCatch from "../../utils/TryCatch";
 
 export const createOrder = TryCatch(async (req, res, next) => {
   const userId = req.user?.id as string;
-  // console.log(userId);
   const { providerId, deliveryAddress, items } = req.body;
-  // console.log(items);
+
   if (!items || items.length === 0) {
     return next(new ErrorHandler("Cart is empty", 400));
+  }
+
+  if (!providerId) {
+    return next(new ErrorHandler("Provider ID is required", 400));
+  }
+
+  if (!deliveryAddress || !deliveryAddress.phone || !deliveryAddress.house || !deliveryAddress.areaName) {
+    return next(new ErrorHandler("Complete delivery address is required", 400));
   }
 
   let mealItems = Array.from(items);
@@ -122,8 +129,9 @@ export const singleOrder = TryCatch(async (req, res, next) => {
 export const getOrderByProvider = TryCatch(async (req, res, next) => {
   const userId = req.user?.id as string;
   if (!userId) {
-    next(new ErrorHandler("User not fouund", 401));
+    next(new ErrorHandler("User not found", 401));
   }
+
   const providerProfile = await prisma.providerProfile.findUnique({
     where: {
       userId,
@@ -131,14 +139,37 @@ export const getOrderByProvider = TryCatch(async (req, res, next) => {
     select: { id: true },
   });
 
-  const providerId = providerProfile?.id as string;
+  if (!providerProfile) {
+    return next(new ErrorHandler("Provider profile not found", 404));
+  }
+
+  const providerId = providerProfile.id;
 
   const orders = await prisma.order.findMany({
     where: {
       providerId,
     },
     include: {
-      user: true,
+      user: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+      address: true,
+      items: {
+        include: {
+          meal: {
+            select: {
+              name: true,
+              price: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
     },
   });
 

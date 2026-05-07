@@ -3,6 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import envConfig from "../config/envConfig";
 import nodemailer from "nodemailer";
+import { env } from "prisma/config";
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -19,9 +20,9 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
-  trustedOrigins: ["http://localhost:3000", process.env.APP_URL as string],
+  trustedOrigins: ["http://localhost:3000", envConfig.app_url as string],
 
-  baseURL: process.env.BETTER_AUTH_URL,
+  // baseURL:  envConfig.better_auth_url,
 
   emailAndPassword: {
     enabled: true,

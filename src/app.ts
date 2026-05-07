@@ -7,6 +7,7 @@ import { userRouter } from "./modules/user/user.route";
 import { mealsRouter } from "./modules/meals/meals.route";
 import { orderRouter } from "./modules/order/order.route";
 import { statsRouter } from "./modules/stats/stats.route";
+import { authRouter } from "./modules/auth/auth.route";
 import { errorMiddleware } from "./middleware/errorMiddleware ";
 import envConfig from "./config/envConfig";
 import { toNodeHandler } from "better-auth/node";
@@ -22,11 +23,16 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", envConfig.app_url as string],
+    origin: [
+      "http://localhost:3000",
+      envConfig.app_url as string,
+      "https://effective-fiesta-qxr57j4gvv5299j4-3000.app.github.dev",
+    ],
     credentials: true,
-  }),
+  })
 );
 
+app.use("/api/auth", authRouter);
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
 app.use("/api/user", userRouter);

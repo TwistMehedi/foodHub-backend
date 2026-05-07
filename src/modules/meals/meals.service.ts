@@ -127,7 +127,7 @@ export const MealsService = {
   },
 
   deleteMeal: async (mealId: string, userId: string) => {
-    const meal = await prisma.meal.findUnique({
+    const meal = await prisma.meal.findFirst({
       where: { id: mealId, userId },
     });
 

@@ -45,15 +45,37 @@ export const getUsersByAdmin = TryCatch(async (req, res, next) => {
     return next(new ErrorHandler("You are not authorized", 403));
   }
 
-  const users = await prisma.user.findMany();
-  console.log(users);
-  if (users.length === 0) {
-    return next(new ErrorHandler("No users found", 404));
+  const query = (req.query.query as string) || "";
+  const limit = Number(req.query.limit) || 10;
+  const offset = Number(req.query.offset) || 0;
+
+  const where: any = {};
+
+  if (query) {
+    where.OR = [
+      { name: { contains: query, mode: "insensitive" } },
+      { email: { contains: query, mode: "insensitive" } },
+    ];
   }
+
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      skip: offset,
+      take: limit,
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.user.count({ where }),
+  ]);
 
   res.status(200).json({
     success: true,
-    message: "All users founded",
+    message: "Users fetched successfully",
+    meta: {
+      limit,
+      offset,
+      total,
+    },
     users,
   });
 });
