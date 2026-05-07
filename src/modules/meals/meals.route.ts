@@ -81,8 +81,8 @@ router.route("/categories").get(getCategories);
 router.route("/home").get(getMealsInHome);
 
 router.route("/").get(getAllMeals);
-router.route("/:id").get(getMealById);
 router.route("/providers").get(getAllProvider);
 router.route("/provider/:id").get(getProviderById);
+router.route("/:id").get(getMealById);
 
 export const mealsRouter = router;

@@ -5,6 +5,8 @@ import envConfig from "../config/envConfig";
 import nodemailer from "nodemailer";
 import { env } from "prisma/config";
 
+const isProduction = envConfig.node_env === "production";
+
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
@@ -20,7 +22,13 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
-  trustedOrigins: ["http://localhost:3000", envConfig.app_url as string],
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    envConfig.app_url as string,
+  ],
 
   // baseURL:  envConfig.better_auth_url,
 
@@ -32,7 +40,7 @@ export const auth = betterAuth({
   advanced: {
     cookiePrefix: "better-auth",
 
-    useSecureCookies: true,
+    useSecureCookies: isProduction,
     crossSubDomainCookies: {
       enabled: false,
     },
@@ -41,7 +49,7 @@ export const auth = betterAuth({
 
   cookie: {
     sameSite: "none",
-    secure: true,
+    secure: isProduction,
     httpOnly: true,
     path: "/",
   },
