@@ -13,31 +13,27 @@ import envConfig from "./config/envConfig";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { reviewRouter } from "./modules/review/review.route";
+import { notFound } from "./middleware/notFound";
 
 const app: Application = express();
+
 app.set("trust proxy", 1);
 
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(cookieParser());
+// app.options("*", cors());
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://127.0.0.1:3000",
-      "http://localhost:5173",
-      "http://127.0.0.1:5173",
-      envConfig.app_url as string,
-      "https://effective-fiesta-qxr57j4gvv5299j4-3000.app.github.dev",
-    ],
+    origin: [envConfig.app_url as string],
     credentials: true,
-  })
+  }),
 );
 
-app.use("/api/auth", authRouter);
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
+app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/meals", mealsRouter);
 app.use("/api/order", orderRouter);
@@ -45,5 +41,6 @@ app.use("/api/stats", statsRouter);
 app.use("/api/review", reviewRouter);
 
 app.use(errorMiddleware);
+app.use(notFound);
 
 export default app;

@@ -53,21 +53,11 @@ export const middleware = async (
   try {
     const sessionTokenRaw =
       req.cookies["better-auth.session_token"] ||
-      req.cookies["__Secure-better-auth.session_token"] ||
-      req.cookies["session_token"] ||
-      req.cookies[".Tunnels.Relay.WebForwarding.Cookies"] ||
-      req.cookies["tunnel_phishing_protection"] ||
-      req.cookies["__next_hmr_refresh_hash__"];
- 
+      req.cookies["__Secure-better-auth.session_token"];
 
     const sessionDataRaw =
       req.cookies["better-auth.session_data"] ||
-      req.cookies["better-auth.session_token"] ||
-      req.cookies["__Secure-better-auth.session_token"] ||
-      req.cookies["__Secure-session_token"] ||
-      req.cookies[".Tunnels.Relay.WebForwarding.Cookies"] ||
-      req.cookies["tunnel_phishing_protection"] ||
-      req.cookies["__next_hmr_refresh_hash__"];
+      req.cookies["better-auth.session_token"];
 
     let sessionToken = "";
 
@@ -111,10 +101,7 @@ export const middleware = async (
 
     const user = sessionExists.user;
 
-    if (
-      
-      user.status === UserStatus.SUSPENDED
-    ) {
+    if (user.status === UserStatus.SUSPENDED) {
       return next(new ErrorHandler("Unauthorized! User not active", 401));
     }
 

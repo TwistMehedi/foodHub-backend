@@ -1,7 +1,52 @@
+import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
 import { Role } from "../../types/role";
 import { ErrorHandler } from "../../utils/ErrorHandler";
 import TryCatch from "../../utils/TryCatch";
+
+
+export const loginUser = TryCatch(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return next(new ErrorHandler("Email and password are required", 400));
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+  if (!user) {
+    return next(new ErrorHandler("Invalid email or password", 401));
+  }
+
+  const data = await auth.api.signInEmail({
+    body: {
+      email,
+      password,
+      rememberMe: true,
+    },
+  });
+
+  if (!data) {
+    return next(new ErrorHandler("Login failed", 500));
+  }
+
+  res
+    .cookie("better-auth.session_token", data.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
+    .json({
+      success: true,
+      message: "Login successful",
+      data,
+    });
+  
+});
 
 export const createCategory = TryCatch(async (req, res, next) => {
   const { name } = req.body;

@@ -16,11 +16,13 @@ import {
   editCategory,
   allResturant,
   editResturant,
+ 
 } from "./meals.controller";
 import { authorizeRoles, middleware } from "../../middleware/middleware";
 import upload from "../../middleware/multer";
 
 const router = express.Router();
+
 
 router
   .route("/create-resturant")

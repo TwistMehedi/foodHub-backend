@@ -7,3 +7,6 @@ generated/prisma
 
 api
 .vercel
+
+.vercel
+.env*.local

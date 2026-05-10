@@ -4,6 +4,7 @@ import { ErrorHandler } from "../../utils/ErrorHandler";
 import TryCatch from "../../utils/TryCatch";
 import { MealsService } from "./meals.service";
 
+
 export const createResturant = TryCatch(async (req, res, next) => {
   const { shopName, description, address } = req.body;
 
@@ -298,7 +299,6 @@ export const getMealById = TryCatch(async (req, res, next) => {
     meal,
   });
 });
-
 
 export const getAllProvider = TryCatch(async (req, res, next) => {
   const providers = await prisma.providerProfile.findMany();

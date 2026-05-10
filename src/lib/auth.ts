@@ -3,7 +3,6 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import envConfig from "../config/envConfig";
 import nodemailer from "nodemailer";
-import { env } from "prisma/config";
 
 const isProduction = envConfig.node_env === "production";
 
@@ -22,15 +21,14 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
 
-  trustedOrigins: [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    envConfig.app_url as string,
-  ],
+  logger: {
+    level: "debug",
+    enabled: true,
+  },
 
-  // baseURL:  envConfig.better_auth_url,
+  trustedOrigins: ["http://localhost:3000", process.env.APP_URL as string],
+
+  baseURL: process.env.BETTER_AUTH_URL,
 
   emailAndPassword: {
     enabled: true,

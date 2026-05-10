@@ -1,9 +1,17 @@
 import { Router } from "express";
 
 import { authorizeRoles, middleware } from "../../middleware/middleware";
-import { getAdminStats, getDashboardStats } from "./stats.controller";
+import {
+  getAdminStats,
+  getDashboardStats,
+  userStats,
+} from "./stats.controller";
 
 const router = Router();
+
+router
+  .route("/customer")
+  .get(middleware, authorizeRoles("CUSTOMER"), userStats);
 
 router
   .route("/all")
