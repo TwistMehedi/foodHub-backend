@@ -1,37 +1,75 @@
 # FoodHub - Backend (API Server)
-# Robust API for Seamless Meal Management
 
-This is the core API server for FoodHub, built with Node.js and Express.js. It handles all business logic, user authentication, and database interactions using Prisma ORM.
-# Core Capabilities
-Role-Based Access Control Secure API access management tailored to Admin, Provider, and Customer roles.
+Robust and scalable REST API server for **FoodHub**, built with Node.js and Express.js.  
+It handles authentication, meals, orders, reviews, statistics, and role-based access control using Prisma ORM.
 
-Database Management: Efficient schema handling and queries using Prisma ORM with PostgreSQL.
+---
 
-Robust Error Handling: Global TryCatch utility for centralized error management and cleaner controllers.
+## Core Features
 
-Security & CORS: Configured with secure headers and frontend URL whitelisting to prevent unauthorized access.
+### Authentication & Authorization
+- Secure login system
+- Role-based access control (ADMIN, PROVIDER, CUSTOMER)
+- Protected routes using middleware
 
-# Tech Stack
-Runtime: Node.js
+### Meals & Restaurant Management
+- Create / update / delete meals
+- Restaurant creation and management
+- Category management (Admin only)
+- Provider-specific meal system
+- Home page meal listing
 
-Framework: Express.js
+### Order System
+- Create orders (Customer)
+- View customer orders
+- Provider order management
+- Admin order management
+- Update order status system
 
-ORM: Prisma
+### Reviews
+- Create reviews (authenticated users)
 
-Authentication: Betther Auth (session based aythentucation)
+### Dashboard & Stats
+- Customer stats
+- Provider dashboard stats
+- Admin analytics dashboard
 
-Environment Management: Dotenv
+### User Management
+- Login system
+- Profile update
+- Admin user management
+- Category creation (Admin only)
 
-Database: PostgreSQL / MySQL
+---
 
-# Getting Started
+## Tech Stack
 
-Clone the repository:   https://github.com/TwistMehedi/foodHub-backend
+- Node.js
+- Express.js
+- Prisma ORM
+- PostgreSQL / MySQL
+- Multer (File Upload)
+- dotenv
+- Session-based Authentication
 
-Environment Setup: Create a .env file in the root directory and add your credentials check clone projrect env.local file for needed credential
+---
 
-Generate Prisma Client
+Live Website URL Frontend: https://client-sandy-kappa.vercel.app
 
+Live Website URL Backend: https://backend-theta-peach-32.vercel.app
+
+GitHub Repository Link Frontend: https://github.com/TwistMehedi/asiggment-4-frontend
+
+GitHub Repository Link Backend: https://github.com/TwistMehedi/foodHub-backend
+
+## Getting Started
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/TwistMehedi/foodHub-backend
+cd foodHub-backend
+npm install
 npx prisma generate
-
-npm start
+npx prisma migrate dev
+Create .env and follow example.env
+npm run dev
